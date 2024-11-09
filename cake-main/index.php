@@ -1,6 +1,9 @@
+<?php
+ob_start();  // Elindítja a kimeneti pufferelést
+session_start();  // Indítja a session-t
+?>
 <!DOCTYPE html>
-<html lang="zxx">
-
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Cake Template">
@@ -58,9 +61,17 @@
                     <div class="col-lg-12">
                         <div class="header__top__inner">
                             <div class="header__top__left">
-                                <ul>
-                                    <li><a href="#">Bejelentkezés</a> </li>
-                                </ul>
+                            <?php if (isset($_SESSION['username'])) : ?>
+          <a href="index.php?page=logout">
+        <button type="button" class="btn btn-warning me-3" >
+          Kijelentkezés</button>
+        </a>
+        <?php else : ?>
+          <a href="index.php?page=login">
+        <button type="button" class="btn btn-warning me-3" >
+          Bejelentkezés</button>
+        </a>
+        <?php endif; ?>
                             </div>
                             <div class="header__logo">
                                 <a href="./index.html"><img src="img/logo.png" alt=""></a>
@@ -77,11 +88,10 @@
                     <nav class="header__menu mobile-menu">
                         <ul>
                             <li class="active"><a href="index.php?page=home">Főoldal</a></li>
-                            <li><a href="index.php?page=hiroldal">Blog</a></li>
+                            <li><a href="index.php?page=hiroldal">Híroldal</a></li>
                             <li><a href="index.php?page=hiroldal#ujhirfelvitel">Hírek</a></li>
                             <li><a href="soap/kliens/kliens.php">Torta Soap</a></li>
-                            <li><a href="./blog.html">MNB</a></li>
-                            <li><a href="index.php?page=mnbsoap">Kapcsolat</a></li>
+                            <li><a href="index.php?page=mnbsoap">MNB</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -89,7 +99,35 @@
         </div>
     </header>
     <!-- Header Section End -->
-
+    <span class="navbar-text">
+      <?php
+      
+      if (isset($_SESSION['username'])) {
+        $myConnection= mysqli_connect('localhost', 'root', '', 'cake-bake') or die ("could not connect to mysql");
+        mysqli_set_charset($myConnection,'utf8'); 
+        $myConnection = mysqli_connect('localhost', 'root', '', 'cake-bake') or die("Could not connect to MySQL");
+        mysqli_set_charset($myConnection, 'utf8');
+        
+        // Biztonságos lekérdezés előkészítése
+        $stmt = $myConnection->prepare("SELECT * FROM `users` WHERE `username` = ?");
+        $stmt->bind_param("s", $_SESSION['username']); // "s" - string típus, a 'username' értékét ide bindoljuk
+        $stmt->execute();
+        
+        // Eredmények lekérése
+        $result = $stmt->get_result();
+        $show = $result->fetch_assoc();
+        
+        // Ha szükséges, zárjuk le a kapcsolódást
+        $stmt->close();
+        mysqli_close($myConnection);
+        
+        // Eredmény kiíratása
+        echo "Bejelentkezett: " . $show['lastname'] . " " . $show['firstname'];
+        
+      }   
+      ?>
+      </span>
+      
     <!-- Hero Section Begin -->
     <section class="hero">
         <div class="hero__slider owl-carousel">
@@ -507,6 +545,28 @@
         </div>
     </div>
     <!-- Map End -->
+    <article>
+			<div id="centerer">
+			
+				<section>
+					<?php
+						if (isset($_GET['page']))
+							$page = $_GET['page'];
+						else
+							$page = 'home';
+						if (preg_match('/^[a-z0-9\-]+$/', $page))
+						{
+							$inserted = include($page . '.php');
+							if (!$inserted)
+								echo('Requested page was not found.');
+						}
+						else
+							echo('Invalid parameter.');
+					?>
+				</section>
+				<div class="clearer"></div>
+			</div>
+		</article>
 
     <!-- Footer Section Begin -->
     <footer class="footer set-bg" data-setbg="img/footer-bg.jpg">
@@ -553,7 +613,7 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <p class="copyright__text text-white">
-                          Copyright &copy;<script>document.write(new Date().getFullYear());</script> készítette : Kardos Szabina
+                        &copy; <?php echo date("Y"); ?> készítette: Kardos Szabina
               
                       </p>
                   </div>
@@ -561,7 +621,6 @@
                     <div class="copyright__widget">
                         <ul>
                             <li><a href="#">Privacy Policy</a></li>
-                           
                         </ul>
                     </div>
                 </div>

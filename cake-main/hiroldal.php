@@ -11,7 +11,7 @@
         $szoveg = $_POST['szoveg'];
         $datum = date("Y-m-d H:i:s");
         $username = $_SESSION['username'];
-        $myConnection= mysqli_connect('localhost', 'root', '', 'webprog2_cukraszda') or die ("could not connect to mysql");
+        $myConnection= mysqli_connect('localhost', 'root', '', 'cake-bake') or die ("could not connect to mysql");
         mysqli_set_charset($myConnection,'utf8');
 
         $query_upload = mysqli_query($myConnection, "INSERT INTO `hirek` VALUES(NULL, '$cim', '$szoveg', '$datum', '$username')") or die(mysqli_error($myConnection));
@@ -25,7 +25,7 @@
         $comm_datum = date("Y-m-d H:i:s");
         $hirid = $_POST['id_hirek'];
         
-        $myConnection= mysqli_connect('localhost', 'root', '', 'webprog2_cukraszda') or die ("could not connect to mysql");
+        $myConnection= mysqli_connect('localhost', 'root', '', 'cake-bake') or die ("could not connect to mysql");
         mysqli_set_charset($myConnection,'utf8');
 
         $query_upload = mysqli_query($myConnection, "INSERT INTO `comment` VALUES(NULL, '$username', '$comm_datum', '$komment', '$hirid')") or die(mysqli_error($myConnection));
@@ -35,7 +35,7 @@
 
 <?php
     //Hírek listázása
-    $connection = mysqli_connect('localhost', 'root', '', 'webprog2_cukraszda');
+    $connection = mysqli_connect('localhost', 'root', '', 'cake-bake');
 if(!$connection){
   die("Error: Failed to connect to database!");
 }

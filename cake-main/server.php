@@ -10,7 +10,7 @@ $email    = "";
 $errors = array(); 
 
 // connect to the database
-$db = mysqli_connect('localhost', 'root', '', 'webprog2_cukraszda');
+$db = mysqli_connect('localhost', 'root', '', 'cake-bake');
 if(!$db){
   die("Error: Failed to connect to database!");
 }
