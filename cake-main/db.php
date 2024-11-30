@@ -1,24 +1,15 @@
 <?php
 // Adatbázis kapcsolat konfiguráció
-$host = "localhost";
+$servername = "localhost";
 $username = "root";
 $password = "";
 $database = "cukraszda123";
-$dbname = 'cukraszda123';
 
-/// MySQLi kapcsolat (ha szükséges)
-$conn = new mysqli($host, $username, $password, $dbname);
+// Kapcsolat létrehozása
+$conn = new mysqli($servername, $username, $password, $database);
 
-// Hiba ellenőrzése MySQLi kapcsolatnál
+// Hiba ellenőrzése
 if ($conn->connect_error) {
-    die("MySQLi kapcsolat sikertelen: " . $conn->connect_error);
-}
-
-// PDO kapcsolat létrehozása
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("PDO kapcsolat sikertelen: " . $e->getMessage());
+    die("Connection failed: " . $conn->connect_error);
 }
 ?>

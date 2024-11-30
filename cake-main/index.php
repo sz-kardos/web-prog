@@ -5,7 +5,6 @@ include 'db.php';
 // Menü betöltése
 require_once 'menu.php';
 
-
 ?>
 <!DOCTYPE html>
 <html>
@@ -327,78 +326,34 @@ require_once 'menu.php';
 
     <!-- Class Section Begin -->
     <section class="class spad">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="class__form">
-                    <div class="section-title">
-                        <span>Class cakes</span>
-                        <h2>Készítsd el te magad<br />töltsd le </h2>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="class__form">
+                        <div class="section-title">
+                            <span>Class cakes</span>
+                            <h2>Készítsd el te magad<br />töltsd le </h2>
+                        </div>
+                        <form action="#">
+                            <input type="text" placeholder="Név">
+                            <input type="text" placeholder="Telefon">
+                            <select>
+                                <option value="">Studying Class</option>
+                                <option value="">Writting Class</option>
+                                <option value="">Reading Class</option>
+                            </select>
+                            <input type="text" placeholder="Type your requirements">
+                            <button type="submit" class="site-btn">regisztráció</button>
+                        </form>
                     </div>
-                    <form action="services/generate_pdf.php" method="POST">
-                        <input type="text" name="name" placeholder="Név" required>
-                        <input type="text" name="phone" placeholder="Telefon" required>
-                        
-                        <!-- Sütemény típus lenyíló lista -->
-                        <select name="tipus" required>
-                            <option value="" disabled selected>Válassz süteménytípust</option>
-                            <?php
-                            try {
-                                // Süti típusok dinamikus betöltése
-                                $stmt = $pdo->query("SELECT DISTINCT tipus FROM suti");
-                                while ($row = $stmt->fetch()) {
-                                    echo "<option value='{$row['tipus']}'>{$row['tipus']}</option>";
-                                }
-                            } catch (Exception $e) {
-                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
-                            }
-                            ?>
-                        </select>
-
-                        <!-- Mentes lenyíló lista -->
-                        <select name="mentes" required>
-                            <option value="" disabled selected>Válassz mentességet</option>
-                            <?php
-                            try {
-                                // Mentes tulajdonságok dinamikus betöltése
-                                $stmt = $pdo->query("SELECT DISTINCT mentes FROM tartalom");
-                                while ($row = $stmt->fetch()) {
-                                    echo "<option value='{$row['mentes']}'>{$row['mentes']}</option>";
-                                }
-                            } catch (Exception $e) {
-                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
-                            }
-                            ?>
-                        </select>
-
-                        <!-- Egység lenyíló lista -->
-                        <select name="egyseg" required>
-                            <option value="" disabled selected>Válassz egységet</option>
-                            <?php
-                            try {
-                                // Egységek dinamikus betöltése
-                                $stmt = $pdo->query("SELECT DISTINCT egyseg FROM ar");
-                                while ($row = $stmt->fetch()) {
-                                    echo "<option value='{$row['egyseg']}'>{$row['egyseg']}</option>";
-                                }
-                            } catch (Exception $e) {
-                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
-                            }
-                            ?>
-                        </select>
-
-                        <button type="submit" class="site-btn">PDF Létrehozása</button>
-                    </form>
                 </div>
             </div>
-        </div>
-        <div class="class__video set-bg" data-setbg="img/class-video.jpg">
-            <a href="https://www.youtube.com/watch?v=8PJ3_p7VqHw&list=RD8PJ3_p7VqHw&start_radio=1"
+            <div class="class__video set-bg" data-setbg="img/class-video.jpg">
+                <a href="https://www.youtube.com/watch?v=8PJ3_p7VqHw&list=RD8PJ3_p7VqHw&start_radio=1"
                 class="play-btn video-popup"><i class="fa fa-play"></i></a>
+            </div>
         </div>
-    </div>
-</section>
-
+    </section>
     <!-- Class Section End -->
 
     <!-- Team Section Begin -->

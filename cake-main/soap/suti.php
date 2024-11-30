@@ -32,7 +32,7 @@
                 ]
             ])
         ];
-        $client = new SoapClient("https://www.haragaakos.hu/services/service.wsdl", $options);
+        $client = new SoapClient("localhost", $options);
 
         // Süti adatok lekérése
         $suti = $client->getSuti();
