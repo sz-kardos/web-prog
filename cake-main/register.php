@@ -1,28 +1,105 @@
-<?php include('server.php') ?>
-<div class="container">
-	<div class="row">
-		<h1>Regisztráció</h1>
-		<h6 class="information-text">Csatlakozz a Sütiforradalomhoz!</h6>
-		<div class="form-group">
-        <form method="post" action="register.php">
-  	    <?php include('errors.php'); ?>
-			<p><label for="username">Felhasználónév</label></p>
-            <input type="text" name="username" id="username" value="<?php echo $username; ?>">
-			<p><label for="lastname">Vezetéknév</label></p>
-            <input type="text" name="lastname" id="lastname" value="<?php echo $lastname; ?>">
-			<p><label for="firstname">Keresztnév</label></p>
-            <input type="text" name="firstname" id="firstname" value="<?php echo $firstname; ?>">
-			<p><label for="email">Email</label></p>
-            <input type="email" name="email" id="email" value="<?php echo $email; ?>">
-			<p><label for="password_1">Jelszó</label></p>
-            <input type="password" name="password_1" id="password_1">
-			<p><label for="password_2">Jelszó Újra</label></p>
-            <input type="password" name="password_2" id="password_2">
-			<button type="submit" class="btn" name="reg_user">Regisztráció</button>
-		</div>
-		<div class="footer">
-			<h5>Már regisztráltál? <a href="index.php?page=login">Lépj be!</a></h5>
-		</div>
-	</div>
-</div>
-	
+<?php
+session_start();
+include 'db.php';
+
+// Üzenet inicializálása
+$message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    if (!empty($username) && !empty($password)) {
+        // Jelszó hash-elése
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+        // Adatok beszúrása a users táblába
+        $stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, 'regisztralt')");
+        $stmt->bind_param("ss", $username, $hashed_password);
+
+        if ($stmt->execute()) {
+            $message = 'Sikeres regisztráció! Átirányítás a bejelentkezéshez...';
+            echo "<script>alert('$message'); window.location.href = 'login.php';</script>";
+            exit();
+        } else {
+            $message = 'Hiba történt a regisztráció során: ' . $conn->error;
+            echo "<script>alert('$message');</script>";
+        }
+    } else {
+        $message = 'Minden mezőt ki kell tölteni!';
+        echo "<script>alert('$message');</script>";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regisztráció</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: orange;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: darkorange;
+        }
+        p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Regisztráció</h1>
+        <form method="POST" action="">
+            <label for="username">Felhasználónév:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Jelszó:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Regisztráció</button>
+        </form>
+        <p>Már van fiókod? <a href="login.php">Jelentkezz be!</a></p>
+    </div>
+</body>
+</html>

@@ -1,99 +1,136 @@
 <?php
-session_destroy();
 session_start();
+header("Content-Type: application/json");
+include 'db.php';
 
-// initializing variables
-$username = "";
-$lastname = "";
-$firstname = "";
-$email    = "";
-$errors = array(); 
-
-// connect to the database
-$db = mysqli_connect('localhost', 'root', '', 'webprog2_cukraszda');
-if(!$db){
-  die("Error: Failed to connect to database!");
-}
-mysqli_set_charset($db,'utf8');
-
-// REGISTER USER
-if (isset($_POST['reg_user'])) {
-  // receive all input values from the form
-  $username = mysqli_real_escape_string($db, $_POST['username']);
-  $lastname = mysqli_real_escape_string($db, $_POST['lastname']);
-  $firstname = mysqli_real_escape_string($db, $_POST['firstname']);
-  $email = mysqli_real_escape_string($db, $_POST['email']);
-  $password_1 = mysqli_real_escape_string($db, $_POST['password_1']);
-  $password_2 = mysqli_real_escape_string($db, $_POST['password_2']);
-
-  // form validation: ensure that the form is correctly filled ...
-  // by adding (array_push()) corresponding error unto $errors array
-  if (empty($username)) { array_push($errors, "Felhasználónév kötelező!"); }
-  if (empty($lastname)) { array_push($errors, "Vezetéknév kötelező!"); }
-  if (empty($firstname)) { array_push($errors, "Keresztnév kötelező!"); }
-  if (empty($email)) { array_push($errors, "Email kötelező!"); }
-  if (empty($password_1)) { array_push($errors, "Jelszó kötelező!"); }
-  if ($password_1 != $password_2) {
-	array_push($errors, "A két jelszó nem egyezik.");
-  }
-
-  // first check the database to make sure 
-  // a user does not already exist with the same username and/or email
-  $user_check_query = "SELECT * FROM users WHERE username='$username' OR email='$email' LIMIT 1";
-  $result = mysqli_query($db, $user_check_query);
-  $user = mysqli_fetch_assoc($result);
-  
-  if ($user) { // if user exists
-    if ($user['username'] === $username) {
-      array_push($errors, "Felhasználónév már létezik!");
-    }
-
-    if ($user['email'] === $email) {
-      array_push($errors, "Email már létezik!");
-    }
-  }
-
-  // Finally, register user if there are no errors in the form
-  if (count($errors) == 0) {
-  	$password = md5($password_1);//encrypt the password before saving in the database
-
-  	$query = "INSERT INTO users (username, lastname, firstname, email, password) 
-  			  VALUES('$username', '$lastname', '$firstname', '$email', '$password')";
-  	mysqli_query($db, $query);
-  	/*$_SESSION['username'] = $username;
-  	$_SESSION['success'] = "You are now logged in";*/
-  	header('location: index.php?page=login');
-  }
+// Csak bejelentkezett felhasználók férhetnek hozzá
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Bejelentkezés szükséges"]);
+    exit();
 }
 
-// ... 
+// REST metódusok kezelése
+$method = $_SERVER['REQUEST_METHOD'];
+$id = isset($_GET['id']) ? intval($_GET['id']) : null;
 
-// LOGIN USER
-if (isset($_POST['login_user'])) {
-    $username = mysqli_real_escape_string($db, $_POST['username']);
-    $password = mysqli_real_escape_string($db, $_POST['password']);
-  
-    if (empty($username)) {
-        array_push($errors, "Felhasználónév kötelező!");
-    }
-    if (empty($password)) {
-        array_push($errors, "Jelszó kötelező!");
-    }
-  
-    if (count($errors) == 0) {
-        $password = md5($password);
-        $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
-        $results = mysqli_query($db, $query);
-        if (mysqli_num_rows($results) == 1) {
-          $_SESSION['username'] = $username;
-          $_SESSION['success'] = "Sikeres bejelentkezés!";
-          header('location: index.php');
-        }else {
-            array_push($errors, "Rossz felhasználónév vagy jelszó!");
+switch ($method) {
+    case 'GET':
+        if ($id) {
+            // Egy adott üzenet lekérdezése
+            $stmt = $conn->prepare("SELECT * FROM comments WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            echo json_encode($result->fetch_assoc());
+        } else {
+            // Összes üzenet lekérdezése
+            $stmt = $conn->prepare("SELECT comments.id, comments.message, comments.created_at, users.username, hirek.title 
+                                    FROM comments 
+                                    JOIN users ON comments.user_id = users.id 
+                                    JOIN hirek ON comments.news_id = hirek.id");
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $comments = [];
+            while ($row = $result->fetch_assoc()) {
+                $comments[] = $row;
+            }
+            echo json_encode($comments);
         }
-    }
-  }
+        break;
 
+    case 'POST':
+        // Új üzenet létrehozása
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['news_id'], $data['message'])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Hír azonosító és üzenet szükséges"]);
+            exit();
+        }
 
-  
-  ?>
+        $stmt = $conn->prepare("INSERT INTO comments (user_id, news_id, message) VALUES (?, ?, ?)");
+        $stmt->bind_param("iis", $_SESSION['user_id'], $data['news_id'], $data['message']);
+        if ($stmt->execute()) {
+            http_response_code(201);
+            echo json_encode(["message" => "Üzenet létrehozva"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error" => "Hiba történt"]);
+        }
+        break;
+
+    case 'PUT':
+        // Üzenet módosítása
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["error" => "Üzenet ID szükséges"]);
+            exit();
+        }
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['message'])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Új üzenet szöveg szükséges"]);
+            exit();
+        }
+
+        // Ellenőrizzük, hogy az üzenet a felhasználóé
+        $stmt = $conn->prepare("SELECT user_id FROM comments WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $comment = $result->fetch_assoc();
+
+        if ($comment['user_id'] != $_SESSION['user_id']) {
+            http_response_code(403);
+            echo json_encode(["error" => "Nincs jogosultság módosítani"]);
+            exit();
+        }
+
+        $stmt = $conn->prepare("UPDATE comments SET message = ? WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("sii", $data['message'], $id, $_SESSION['user_id']);
+        if ($stmt->execute()) {
+            echo json_encode(["message" => "Üzenet módosítva"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error" => "Hiba történt"]);
+        }
+        break;
+
+    case 'DELETE':
+        // Üzenet törlése
+        if (!$id) {
+            http_response_code(400);
+            echo json_encode(["error" => "Üzenet ID szükséges"]);
+            exit();
+        }
+
+        // Ellenőrizzük, hogy az üzenet a felhasználóé
+        $stmt = $conn->prepare("SELECT user_id FROM comments WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $comment = $result->fetch_assoc();
+
+        if ($comment['user_id'] != $_SESSION['user_id']) {
+            http_response_code(403);
+            echo json_encode(["error" => "Nincs jogosultság törölni"]);
+            exit();
+        }
+
+        $stmt = $conn->prepare("DELETE FROM comments WHERE id = ? AND user_id = ?");
+        $stmt->bind_param("ii", $id, $_SESSION['user_id']);
+        if ($stmt->execute()) {
+            echo json_encode(["message" => "Üzenet törölve"]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["error" => "Hiba történt"]);
+        }
+        break;
+
+    default:
+        http_response_code(405);
+        echo json_encode(["error" => "Metódus nem támogatott"]);
+        break;
+}
+?>

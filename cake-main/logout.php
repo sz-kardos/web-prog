@@ -1,6 +1,7 @@
-<?php 
+<?php
 session_start();
-$_SESSION["user_id"] = "";
+session_unset();
 session_destroy();
-header('Location: ' . $_SERVER['HTTP_REFERER']);
+header("Location: login.php");
+exit();
 ?>

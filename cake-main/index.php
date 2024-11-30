@@ -1,6 +1,14 @@
-<!DOCTYPE html>
-<html lang="zxx">
+<?php
+// Adatbázis kapcsolat betöltése
+include 'db.php';
 
+// Menü betöltése
+require_once 'menu.php';
+
+
+?>
+<!DOCTYPE html>
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Cake Template">
@@ -57,13 +65,9 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="header__top__inner">
-                            <div class="header__top__left">
-                                <ul>
-                                    <li><a href="#">Bejelentkezés</a> </li>
-                                </ul>
-                            </div>
+                           
                             <div class="header__logo">
-                                <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                                <a href="./index.php"><img src="img/logo.png" alt=""></a>
                             </div>
                         </div>
                     </div>
@@ -76,19 +80,16 @@
                 <div class="col-lg-12">
                     <nav class="header__menu mobile-menu">
                         <ul>
-                            <li class="active"><a href="index.php?page=home">Főoldal</a></li>
-                            <li><a href="index.php?page=hiroldal">Blog</a></li>
-                            <li><a href="index.php?page=hiroldal#ujhirfelvitel">Hírek</a></li>
-                            <li><a href="soap/kliens/kliens.php">Torta Soap</a></li>
-                            <li><a href="./blog.html">MNB</a></li>
-                            <li><a href="index.php?page=mnbsoap">Kapcsolat</a></li>
+                        <?php
+                // Menü megjelenítése
+                echo buildMenu($conn);
+                ?>
                         </ul>
                     </nav>
                 </div>
             </div>
         </div>
     </header>
-    <!-- Header Section End -->
 
     <!-- Hero Section Begin -->
     <section class="hero">
@@ -326,34 +327,78 @@
 
     <!-- Class Section Begin -->
     <section class="class spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="class__form">
-                        <div class="section-title">
-                            <span>Class cakes</span>
-                            <h2>Készítsd el te magad<br />töltsd le </h2>
-                        </div>
-                        <form action="#">
-                            <input type="text" placeholder="Név">
-                            <input type="text" placeholder="Telefon">
-                            <select>
-                                <option value="">Studying Class</option>
-                                <option value="">Writting Class</option>
-                                <option value="">Reading Class</option>
-                            </select>
-                            <input type="text" placeholder="Type your requirements">
-                            <button type="submit" class="site-btn">regisztráció</button>
-                        </form>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="class__form">
+                    <div class="section-title">
+                        <span>Class cakes</span>
+                        <h2>Készítsd el te magad<br />töltsd le </h2>
                     </div>
+                    <form action="services/generate_pdf.php" method="POST">
+                        <input type="text" name="name" placeholder="Név" required>
+                        <input type="text" name="phone" placeholder="Telefon" required>
+                        
+                        <!-- Sütemény típus lenyíló lista -->
+                        <select name="tipus" required>
+                            <option value="" disabled selected>Válassz süteménytípust</option>
+                            <?php
+                            try {
+                                // Süti típusok dinamikus betöltése
+                                $stmt = $pdo->query("SELECT DISTINCT tipus FROM suti");
+                                while ($row = $stmt->fetch()) {
+                                    echo "<option value='{$row['tipus']}'>{$row['tipus']}</option>";
+                                }
+                            } catch (Exception $e) {
+                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
+                            }
+                            ?>
+                        </select>
+
+                        <!-- Mentes lenyíló lista -->
+                        <select name="mentes" required>
+                            <option value="" disabled selected>Válassz mentességet</option>
+                            <?php
+                            try {
+                                // Mentes tulajdonságok dinamikus betöltése
+                                $stmt = $pdo->query("SELECT DISTINCT mentes FROM tartalom");
+                                while ($row = $stmt->fetch()) {
+                                    echo "<option value='{$row['mentes']}'>{$row['mentes']}</option>";
+                                }
+                            } catch (Exception $e) {
+                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
+                            }
+                            ?>
+                        </select>
+
+                        <!-- Egység lenyíló lista -->
+                        <select name="egyseg" required>
+                            <option value="" disabled selected>Válassz egységet</option>
+                            <?php
+                            try {
+                                // Egységek dinamikus betöltése
+                                $stmt = $pdo->query("SELECT DISTINCT egyseg FROM ar");
+                                while ($row = $stmt->fetch()) {
+                                    echo "<option value='{$row['egyseg']}'>{$row['egyseg']}</option>";
+                                }
+                            } catch (Exception $e) {
+                                echo "<option disabled>Hiba történt az adatok betöltésekor.</option>";
+                            }
+                            ?>
+                        </select>
+
+                        <button type="submit" class="site-btn">PDF Létrehozása</button>
+                    </form>
                 </div>
             </div>
-            <div class="class__video set-bg" data-setbg="img/class-video.jpg">
-                <a href="https://www.youtube.com/watch?v=8PJ3_p7VqHw&list=RD8PJ3_p7VqHw&start_radio=1"
-                class="play-btn video-popup"><i class="fa fa-play"></i></a>
-            </div>
         </div>
-    </section>
+        <div class="class__video set-bg" data-setbg="img/class-video.jpg">
+            <a href="https://www.youtube.com/watch?v=8PJ3_p7VqHw&list=RD8PJ3_p7VqHw&start_radio=1"
+                class="play-btn video-popup"><i class="fa fa-play"></i></a>
+        </div>
+    </div>
+</section>
+
     <!-- Class Section End -->
 
     <!-- Team Section Begin -->
@@ -507,6 +552,39 @@
         </div>
     </div>
     <!-- Map End -->
+    <article>
+			<div id="centerer">
+			
+				<section>
+				<?php
+    if (isset($_GET['page'])) {
+        $page = $_GET['page'];
+    } else {
+        $page = 'home';
+    }
+
+    if (preg_match('/^[a-z0-9\-]+$/', $page)) {
+        // Define the path of the page
+        $filePath = $page . '.php';
+
+        // Check if the file exists before including it
+        if (is_file($filePath)) {
+            $inserted = include($filePath);
+            if (!$inserted) {
+                echo 'Requested page could not be loaded.';
+            }
+        } else {
+            echo 'Requested page was not found.';
+        }
+    } else {
+        echo 'Invalid parameter.';
+    }
+?>
+
+				</section>
+				<div class="clearer"></div>
+			</div>
+		</article>
 
     <!-- Footer Section Begin -->
     <footer class="footer set-bg" data-setbg="img/footer-bg.jpg">
@@ -553,7 +631,7 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <p class="copyright__text text-white">
-                          Copyright &copy;<script>document.write(new Date().getFullYear());</script> készítette : Kardos Szabina
+                        &copy; <?php echo date("Y"); ?> készítette: Kardos Szabina
               
                       </p>
                   </div>
@@ -561,7 +639,6 @@
                     <div class="copyright__widget">
                         <ul>
                             <li><a href="#">Privacy Policy</a></li>
-                           
                         </ul>
                     </div>
                 </div>
