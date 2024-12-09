@@ -1,32 +1,32 @@
 Web-Programozás II. PHP beadandó
 
-Készítette: Kardos Szabina
+  Készítette: Kardos Szabina
 
 
 
 Megoldandó feladatok:
 
 
- Alapprojekt létrehozása
+         Alapprojekt létrehozása
 
- Reszponzív téma kialakítása
+         Reszponzív téma kialakítása
 
- SOAP szerver menü
+         SOAP szerver menü
 
- SOAP kliens menü
+         SOAP kliens menü
 
- SOAP MNB menü
+         SOAP MNB menü
 
- Restful szerver menü
+         Restful szerver menü
 
- Restful kliens menü
+         Restful kliens menü
 
- PDF generálás menü
+         PDF generálás menü
 
- Alkalmazás megvalósítása tárhelyen -> Elérhető: http://gamfbeadando.nhely.hu/ -n.
+         Alkalmazás megvalósítása tárhelyen
 
- GitLab/GitHub alkalmazása
+         GitLab/GitHub alkalmazása
 
- GitLab/GitHub projektmunka módszertan alkalmazása
+         GitLab/GitHub projektmunka módszertan alkalmazása
 
- Dokumentáció elkészítése
+         Dokumentáció elkészítése
