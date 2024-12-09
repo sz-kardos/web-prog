@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap-env="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="https://www.haragaakos.hu/services/" xmlns:xsd="https://www.haragaakos.hu/services/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="https://www.haragaakos.hu/services/"/>
+  </wsdl:types>
+  <wsdl:message name="getSutiRequest"/>
+  <wsdl:message name="getSutiResponse">
+    <wsdl:part name="getSutiReturn" type="soap-enc:array"/>
+  </wsdl:message>
+  <wsdl:message name="getArRequest"/>
+  <wsdl:message name="getArResponse">
+    <wsdl:part name="getArReturn" type="soap-enc:array"/>
+  </wsdl:message>
+  <wsdl:message name="getTartalomRequest"/>
+  <wsdl:message name="getTartalomResponse">
+    <wsdl:part name="getTartalomReturn" type="soap-enc:array"/>
+  </wsdl:message>
+  <wsdl:portType name="SOAPServicePortType">
+    <wsdl:operation name="getSuti">
+      <wsdl:documentation>Süti adatok lekérése</wsdl:documentation>
+      <wsdl:input message="tns:getSutiRequest"/>
+      <wsdl:output message="tns:getSutiResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getAr">
+      <wsdl:documentation>Ár adatok lekérése</wsdl:documentation>
+      <wsdl:input message="tns:getArRequest"/>
+      <wsdl:output message="tns:getArResponse"/>
+    </wsdl:operation>
+    <wsdl:operation name="getTartalom">
+      <wsdl:documentation>Tartalom adatok lekérése</wsdl:documentation>
+      <wsdl:input message="tns:getTartalomRequest"/>
+      <wsdl:output message="tns:getTartalomResponse"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SOAPServiceBinding" type="tns:SOAPServicePortType">
+    <soap-env:binding xmlns="http://schemas.xmlsoap.org/wsdl/soap/" style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getSuti">
+      <soap-env:operation xmlns="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="https://www.haragaakos.hu/services/SOAPService.php?method=getSuti" style="rpc"/>
+      <wsdl:input>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getAr">
+      <soap-env:operation xmlns="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="https://www.haragaakos.hu/services/SOAPService.php?method=getAr" style="rpc"/>
+      <wsdl:input>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getTartalom">
+      <soap-env:operation xmlns="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="https://www.haragaakos.hu/services/SOAPService.php?method=getTartalom" style="rpc"/>
+      <wsdl:input>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:input>
+      <wsdl:output>
+        <soap-env:body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="encoded" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SOAPService">
+    <wsdl:documentation/>
+    <wsdl:port name="SOAPServicePort" binding="tns:SOAPServiceBinding">
+      <soap-env:address location="https://www.haragaakos.hu/services/SOAPService.php"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
